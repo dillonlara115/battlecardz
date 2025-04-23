@@ -1,3 +1,11 @@
-<h1>Welcome to your library project</h1>
-<p>Create your package using @sveltejs/package and preview/showcase your work with SvelteKit</p>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+	import BattlecardForm from '$lib/components/BattlecardForm.svelte';
+</script>
+
+<div class="mx-auto max-w-3xl p-8">
+	<div class="prose">
+		<h1>Welcome to Battlecardz</h1>
+		<p>Utilize the form below to create your own business battlecard.</p>
+	</div>
+	<BattlecardForm />
+</div>
