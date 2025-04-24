@@ -1,6 +1,13 @@
 import { json } from '@sveltejs/kit';
 import OpenAI from 'openai';
 import { OPENAI_API_KEY } from '$env/static/private';
+import fs from 'fs/promises';
+import path from 'path';
+
+// Define CSV file path (inside storage directory)
+const storageDir = path.resolve('storage');
+const csvFilePath = path.join(storageDir, 'form_submissions.csv');
+const csvHeaders = 'Timestamp,User URL,Competitor URL,Email\n';
 
 /** @type {OpenAI | null} */
 let openai = null;
@@ -14,6 +21,48 @@ try {
 } catch (error) {
 	// @ts-ignore - Error type is unknown
 	console.error("Failed to initialize OpenAI client:", error.message);
+}
+
+// Function to safely append to CSV
+/**
+ * Appends form submission data to a CSV file.
+ * @param {{ userUrl: string; competitorUrl: string; userEmail: string; }} data The data to append.
+ */
+async function appendToCsv(data) {
+	try {
+		// Ensure storage directory exists
+		await fs.mkdir(storageDir, { recursive: true });
+
+		// Check if file exists
+		try {
+			await fs.access(csvFilePath);
+		} catch {
+			// File doesn't exist, write headers first
+			await fs.writeFile(csvFilePath, csvHeaders);
+			console.log(`Created CSV file with headers: ${csvFilePath}`);
+		}
+
+		// Format data line (handle potential commas in fields by quoting)
+		/**
+		 * Escapes a string for CSV field.
+		 * @param {string | number | boolean} field The field value to escape.
+		 * @returns {string} The CSV-escaped string.
+		 */
+		const escapeCsvField = (field) => `"${String(field).replace(/"/g, '""')}"`;
+		const line = [
+			new Date().toISOString(),
+			escapeCsvField(data.userUrl),
+			escapeCsvField(data.competitorUrl),
+			escapeCsvField(data.userEmail)
+		].join(',') + '\n';
+
+		// Append data to the file
+		await fs.appendFile(csvFilePath, line);
+		// console.log('Appended data to CSV.'); // Optional: Log success
+	} catch (err) {
+		console.error("Error writing to CSV file:", err);
+		// Decide how to handle this error - maybe log it but don't block the main request
+	}
 }
 
 // Function to extract a simple name from URL
@@ -197,13 +246,17 @@ export async function POST({ request }) {
 		return json({ error: 'OpenAI client not initialized. Check server logs and environment variables.' }, { status: 500 });
 	}
 
-	/** @type {any} */ // Replace 'any' with a more specific type or use Zod for validation
+	/** @type {any} */
 	const body = await request.json();
 
 	const { userUrl, competitorUrl, userEmail } = body;
 	if (typeof userUrl !== 'string' || typeof competitorUrl !== 'string' || typeof userEmail !== 'string') {
 		return json({ error: 'Invalid input data types.' }, { status: 400 });
 	}
+
+	// --- Append to CSV --- 
+	await appendToCsv({ userUrl, competitorUrl, userEmail });
+	// --------------------
 
 	const companyAName = getCompanyNameFromUrl(userUrl);
 	const companyBName = getCompanyNameFromUrl(competitorUrl);
