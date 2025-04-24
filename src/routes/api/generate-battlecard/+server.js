@@ -213,7 +213,7 @@ export async function POST({ request }) {
 
 	try {
 		// 1. Fetch content from userUrl and competitorUrl (Requires additional libraries/logic) - STILL PENDING
-		console.log("Placeholder: Fetching website content...");
+		//console.log("Placeholder: Fetching website content...");
 
 		// 2. Construct the prompt
 		const finalPrompt = battlecardPromptTemplate
@@ -223,10 +223,10 @@ export async function POST({ request }) {
 			.replace(/{companyBUrl}/g, competitorUrl);
 
 		// 3. Make the OpenAI API call
-		console.log("Making OpenAI API call...");
+		//console.log("Making OpenAI API call...");
 
 		const completion = await openai.chat.completions.create({
-			model: "gpt-4o", // Using gpt-4o as per your example
+			model: "o3-mini", // Using gpt-4o as per your example
 			messages: [
 				{ role: "system", content: "You are a senior strategist and B2B sales enablement expert." }, // System message from prompt
 				{ role: "user", content: finalPrompt } // User message is the constructed prompt
@@ -242,9 +242,9 @@ export async function POST({ request }) {
 		// Clean the response: remove potential markdown fences and trim whitespace
 		battlecardContent = battlecardContent.replace(/```html\n?|```/g, '').trim();
 
-		console.log("Cleaned battlecard content (snippet):");
-		console.log(battlecardContent.substring(0, 200) + "...");
-
+		//console.log("Cleaned battlecard content (snippet):");
+		//console.log(battlecardContent.substring(0, 200) + "...");
+//
 		// Return the cleaned content directly
 		return json(
 			{ 
