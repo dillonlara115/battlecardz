@@ -84,46 +84,57 @@ const getCompanyNameFromUrl = (url) => {
 };
 
 const battlecardPromptTemplate = `
-You are a senior strategist and B2B sales enablement expert.
+## ROLE
+You are a **senior strategist & B2B sales-enablement expert**.
 
-Your task is to create a world-class battlecard for internal sales use.
-
-Use the following structure, tone, and format to compare our company (Company A) against a specific competitor (Company B). Make it bold, tactical, and useful in live sales conversations.
-
-For extra context, both companies are resellers of Laserfiche. We need to identify why we are the better choice.
+## TASK
+Create a world-class **competitive battlecard** for internal sales use.
+It must be **punchy, data-accurate, and copy-pastable** in live calls.
 
 ---
 
 ### INPUT:
 
 **Company A (Us):**
-Name: {companyAName}
-Website: {companyAUrl}
+- Name: {companyAName}
+- Website: {companyAUrl}
 
 **Company B (Competitor):**
-Name: {companyBName}
-Website: {companyBUrl}
+- Name: {companyBName}
+- Website: {companyBUrl}
 
+**Additional_Attributes:** [Optional; CSV list—e.g., "Security,Compliance" - Currently not provided by form]
 
-### OUTPUT FORMAT (USE THIS EXACTLY):
+---
 
-**IMPORTANT**: Wrap each major section (starting from "Who Are We Selling Against?" up to and including "Close With Confidence") in a \`div\` with the class \`card bg-neutral text-neutral-content shadow-xl w-full mb-4\`. Inside that, add a \`div\` with class \`card-body\`. Start each section\'s content with an \`h2\` with class \`card-title text-primary-\`. **Use direct HTML markup** (e.g., \`<table>\`, \`<ul>\`, \`<li>\`, \`<blockquote>\`, \`<strong>\`) instead of Markdown within the card bodies.**
+### DATA SOURCES & RULES
+1. Use information ONLY from:
+   • the two websites above ({companyAUrl}, {companyBUrl})
+   • press releases or blog posts **≤ 12 months old**
+   • G2, Gartner, or Forrester pages
+2. **Never** invent facts. If data is missing, output "—".
+3. Keep total response **≤ 800 words**.
+
+---
+
+### OUTPUT (use this structure exactly):
+
+**IMPORTANT**: Use the provided HTML structure (card, card-body, card-title). **Use direct HTML markup** (e.g., \`<table>\`, \`<ul>\`, \`<li>\`, \`<blockquote>\`, \`<strong>\`, \`<p>\`) instead of Markdown within the card bodies.**
 
 <h2>🛡️ Competitive Battlecard: {companyBName} vs. {companyAName}</h2>
 
 <div class="card bg-neutral text-neutral-content shadow-xl w-full mb-4 comp_summary">
 <div class="card-body">
-<h2 class="card-title ">👤 Who Are We Selling Against?</h2>
-<p>[Brief summary of the competitor: what they're known for, target customers, what they offer. Use paragraph tags.]</p>
+<h2 class="card-title">👤 Who Are We Selling Against?</h2>
+<p>[Clear synopsis of Competitor—what they're known for, whom they serve, key offer.]</p>
 </div>
 </div>
-
 
 <div class="card bg-neutral text-neutral-content shadow-xl w-full mb-4 comp_quick_summary">
 <div class="card-body">
-<h2 class="card-title ">🧠 Quick Summary: [{companyAName} vs. {companyBName}]</h2>
+<h2 class="card-title">🧠 Quick Summary: [{companyAName} vs. {companyBName}]</h2>
 <div class="overflow-x-auto">
-<table class="table  w-full">
+<table class="table w-full">
 <thead>
 <tr>
 <th>Attribute</th>
@@ -132,110 +143,114 @@ Website: {companyBUrl}
 </tr>
 </thead>
 <tbody>
-<tr><td>Ease of Use</td><td>[✅ / 🟢 / 🔴 and 1-line description]</td><td>[✅ / 🟢 / 🔴 and 1-line description]</td></tr>
+<tr><td>Ease of Use</td><td>[:white_check_mark: / :large_green_circle: / :red_circle:] – 1-line note</td><td>[:white_check_mark: / :large_green_circle: / :red_circle:] – 1-line note</td></tr>
 <tr><td>Ideal Customer</td><td>[1-line summary]</td><td>[1-line summary]</td></tr>
 <tr><td>Pricing</td><td>[1-line summary]</td><td>[1-line summary]</td></tr>
 <tr><td>Speed to Value</td><td>[1-line summary]</td><td>[1-line summary]</td></tr>
 <tr><td>Customization</td><td>[1-line summary]</td><td>[1-line summary]</td></tr>
 <tr><td>Integration</td><td>[1-line summary]</td><td>[1-line summary]</td></tr>
 <tr><td>Support & Service</td><td>[1-line summary]</td><td>[1-line summary]</td></tr>
+<!-- Add rows here if Additional_Attributes are provided -->
 </tbody>
 </table>
+<p><small>Rating keys: ✅ = best-in-class, 🟢 = parity, 🔴 = weakness.</small></p>
 </div>
 </div>
 </div>
 
+<div class="card bg-neutral text-neutral-content shadow-xl w-full mb-4 comp_proof_points">
+<div class="card-body">
+<h2 class="card-title">🚀 Proof Points</h2>
+<ul class="list-disc list-inside space-y-1">
+<li>[Customer logo + ROI stat - max 20 words]</li>
+<li>[Analyst quote - max 20 words]</li>
+<li>[Time-to-value win - max 20 words]</li>
+<!-- Max 3 bullets -->
+</ul>
+</div>
+</div>
 
 <div class="card bg-neutral text-neutral-content shadow-xl w-full mb-4 comp_core">
 <div class="card-body">
-<h2 class="card-title ">🗣️ Core Talk Tracks (Why We Win)</h2>
+<h2 class="card-title">🗣️ Core Talk Tracks (Why We Win)</h2>
 <ol class="list-decimal list-inside space-y-2">
 <li>
-<strong>[Talk Track Title]</strong>
-<blockquote class="pl-4 italic border-l-4 border-gray-300">
-<p>"[Sharp, memorable quote your sales team can use]"</p>
-</blockquote>
+<strong>[Title]</strong>
+<blockquote class="pl-4 italic border-l-4 border-gray-300"><p>"[≤ 40 words sound-bite reps can quote]"</p></blockquote>
 </li>
 <li>
-<strong>[Talk Track Title]</strong>
-<blockquote class="pl-4 italic border-l-4 border-gray-300">
-<p>"[Another punchy message focused on our strength]"</p>
-</blockquote>
+<strong>[Title]</strong>
+<blockquote class="pl-4 italic border-l-4 border-gray-300"><p>"[≤ 40 words sound-bite reps can quote]"</p></blockquote>
 </li>
 <li>
-<strong>[Talk Track Title]</strong>
-<blockquote class="pl-4 italic border-l-4 border-gray-300">
-<p>"[Third key talking point that sets us apart]"</p>
-</blockquote>
+<strong>[Title]</strong>
+<blockquote class="pl-4 italic border-l-4 border-gray-300"><p>"[≤ 40 words sound-bite reps can quote]"</p></blockquote>
 </li>
 </ol>
 </div>
 </div>
 
-
 <div class="card bg-neutral text-neutral-content shadow-xl w-full mb-4 comp_objections">
 <div class="card-body">
-<h2 class="card-title ">🛑 Common Objections + Responses</h2>
+<h2 class="card-title">🛑 Common Objections → Confident Responses</h2>
 <div class="overflow-x-auto">
 <table class="table w-full">
 <thead>
-<tr><th><strong>Objection</strong></th><th><strong>Reframe or Response</strong></th></tr>
+<tr><th><strong>Objection</strong></th><th><strong>Reframe / Response (≤ 25 words)</strong></th></tr>
 </thead>
 <tbody>
-<tr><td>"[Customer objection]"</td><td>"Here's how we respond to that clearly and directly."</td></tr>
-<tr><td>"[Customer objection]"</td><td>"Short, confidence-building response."</td></tr>
-<tr><td>"[Customer objection]"</td><td>"Empathetic, but strong counter-message."</td></tr>
+<tr><td>"[Customer objection 1]"</td><td>"[Response 1]"</td></tr>
+<tr><td>"[Customer objection 2]"</td><td>"[Response 2]"</td></tr>
+<tr><td>"[Customer objection 3]"</td><td>"[Response 3]"</td></tr>
 </tbody>
 </table>
 </div>
 </div>
 </div>
 
-
 <div class="card bg-neutral text-neutral-content shadow-xl w-full mb-4 comp_landmine">
 <div class="card-body">
-<h2 class="card-title ">🚨 Landmine Questions (Use to Plant Doubt Subtly)</h2>
+<h2 class="card-title">🚨 Landmine Questions (Plant Doubt Subtly)</h2>
 <ul class="list-disc list-inside space-y-1">
-<li>"What does your onboarding process look like with {companyBName}?"</li>
-<li>"How many of your team members are actually logging in every day?"</li>
-<li>"How flexible is it without needing a developer?"</li>
-<li>"How long did implementation take?"</li>
+<li>"What did {companyBName} quote you for onboarding, and how long will that take?"</li>
+<li>"How many active users log in weekly?"</li>
+<li>"Which integrations require paid services?"</li>
+<li>[Add 1-2 more questions, ≤ 15 words each]</li>
+<!-- 3–4 total -->
 </ul>
 </div>
 </div>
-
 
 <div class="card bg-neutral text-neutral-content shadow-xl w-full mb-4 comp_positioning">
 <div class="card-body">
-<h2 class="card-title ">🧨 Positioning Landmines to Avoid</h2>
+<h2 class="card-title">❌ Positioning Landmines to Avoid</h2>
 <ul class="list-disc list-inside space-y-1">
-<li>Don't bash the competitor — frame them as misaligned.</li>
-<li>Avoid language that makes us sound smaller or less serious.</li>
-<li>Keep focus on business impact, not feature comparisons.</li>
+<li>Don't bash; frame them as <strong>mis-aligned</strong> to buyer needs.</li>
+<li>Avoid language implying we're smaller or less proven.</li>
+<li>Keep focus on <strong>business outcomes</strong>, not features.</li>
 </ul>
 </div>
 </div>
 
-
 <div class="card bg-neutral text-neutral-content shadow-xl w-full mb-4 comp_taglines">
 <div class="card-body">
-<h2 class="card-title ">🧩 Taglines You Can Use in Messaging</h2>
+<h2 class="card-title">🧩 Taglines for Messaging</h2>
 <ul class="list-disc list-inside space-y-1">
-<li>"[Bold, sticky tagline 1]"</li>
+<li>"[Sticky tagline 1]"</li>
 <li>"[Tagline 2]"</li>
 <li>"[Tagline 3]"</li>
 </ul>
 </div>
 </div>
 
-
 <div class="card bg-neutral text-neutral-content shadow-xl w-full mb-4 comp_close">
 <div class="card-body">
-<h2 class="card-title ">🔚 Close With Confidence</h2>
-<p>[Wrap up with a strong paragraph reminding the rep when we win and how to confidently guide the conversation. Use paragraph tags.]</p>
+<h2 class="card-title">🔚 Close With Confidence</h2>
+<p>[Two-sentence rally-cry: **When we win** (ideal scenario) and **next action** (qualify budget → book technical validation call). Use paragraph tags.]</p>
 </div>
 </div>
 
+---
 
 Make your tone confident, crisp, and practical. This should feel like it was written by a VP of Sales who knows exactly what reps need to win deals.
 `;
